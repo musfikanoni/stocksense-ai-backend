@@ -1,0 +1,52 @@
+import { existsSync } from "node:fs";
+import "dotenv/config";
+
+const missing = ["MONGODB_URI", "JWT_SECRET"].filter((k) => !process.env[k]);
+if (missing.length) {
+  const hint = existsSync(".env")
+    ? `Open your .env file and fill in: ${missing.join(", ")}.`
+    : `There is no ".env" file in ${process.cwd()}. Copy .env.example to a new file named ".env" (Windows: copy .env.example .env), fill it in, then run the command again.`;
+  throw new Error(`Missing ${missing.join(", ")}. ${hint}`);
+}
+if ((process.env.JWT_SECRET as string).length < 16) throw new Error("JWT_SECRET must be at least 16 characters.");
+
+const isProd = process.env.NODE_ENV === "production";
+
+export const env = {
+  nodeEnv: process.env.NODE_ENV || "development",
+  isProd,
+  isTest: process.env.NODE_ENV === "test",
+  port: Number(process.env.PORT) || 5000,
+  mongoUri: process.env.MONGODB_URI as string,
+  jwtSecret: process.env.JWT_SECRET as string,
+  jwtExpires: process.env.JWT_EXPIRES || "7d",
+  clientUrls: (process.env.CLIENT_URL || "http://localhost:3000").split(",").map((s) => s.trim()),
+  geminiKey: process.env.GEMINI_API_KEY || "",
+  geminiModel: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+  bcryptRounds: Number(process.env.BCRYPT_ROUNDS) || 12,
+  twelveDataKey: process.env.TWELVE_DATA_API_KEY || "",
+  quoteRefreshMinutes: Math.max(5, Number(process.env.QUOTE_REFRESH_MINUTES) || 30),
+  // Background jobs (price refresh and alert checks). Off in tests.
+  jobsEnabled: process.env.JOBS_ENABLED ? process.env.JOBS_ENABLED === "true" : process.env.NODE_ENV !== "test",
+  mail: {
+    resendKey: process.env.RESEND_API_KEY || "",
+    from: process.env.MAIL_FROM || "",
+    smtpHost: process.env.SMTP_HOST || "",
+    smtpPort: Number(process.env.SMTP_PORT) || 587,
+    smtpUser: process.env.SMTP_USER || "",
+    smtpPass: process.env.SMTP_PASS || "",
+  },
+  clientUrl: (process.env.CLIENT_URL || "http://localhost:3000").split(",")[0].trim(),
+  stripe: { secretKey: process.env.STRIPE_SECRET_KEY || "", webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "" },
+  googleClientId: process.env.GOOGLE_CLIENT_ID || "",
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME || "",
+    apiKey: process.env.CLOUDINARY_API_KEY || "",
+    apiSecret: process.env.CLOUDINARY_API_SECRET || "",
+  },
+  // Only for local development: returns the password-reset code in the API response because no email service is connected yet.
+  showDevOtp: process.env.SHOW_DEV_OTP === "true" && !isProd,
+};
+
+// Limits for the Free plan (matches the plan features shown in the frontend)
+export const FREE_LIMITS = { watchlist: 5, alerts: 3 };

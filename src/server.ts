@@ -1,24 +1,15 @@
-import 'dotenv/config';
-import express from 'express';
+import mongoose from "mongoose";
+import app from "./app.js";
+import { connectDb } from "./config/db.js";
+import { env } from "./config/env.js";
+import { startJobs } from "./jobs/index.js";
 
-const app = express();
-const port = Number(process.env.PORT) || 5000;
+await connectDb();
+const server = app.listen(env.port, () => console.log(`API running on http://localhost:${env.port}`));
 
-app.use(express.json());
+const timer = env.jobsEnabled ? startJobs() : null;
 
-app.get('/', (_req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Welcome to StockSense AI System',
-  });
-});
-
-app.listen(port, () => {
-  console.log('');
-  console.log('==============================================');
-  console.log('       WELCOME TO STOCKSENSE AI SYSTEM');
-  console.log('       Stock Market API Backend Starter');
-  console.log('==============================================');
-  console.log(`Server running at http://localhost:${port}`);
-  console.log('');
-});
+const stop = () => server.close(() => {
+  if (timer) clearInterval(timer); void mongoose.connection.close().then(() => process.exit(0)); });
+process.on("SIGTERM", stop);
+process.on("SIGINT", stop);
