@@ -9,7 +9,7 @@ import {
   fetchIntraday,
   marketDataConfigured,
 } from "../services/marketData.js";
-import { AppError } from "../utils/appError.js";
+import { AppError } from "../utils/AppError.js";
 import { ah } from "../utils/asyncHandler.js";
 import { series } from "../utils/history.js";
 import { isMarketOpen } from "../utils/marketHours.js";

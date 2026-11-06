@@ -3,10 +3,10 @@ import { me, requireAuth } from "../middleware/auth.js";
 import { Notification } from "../models/Notification.js";
 import { ah } from "../utils/asyncHandler.js";
 
+
 const r = Router();
 r.use(requireAuth);
 
-// The bell menu: newest 20 and how many are unread
 r.get("/", ah(async (req, res) => {
   const user = me(req);
   const [items, unread] = await Promise.all([

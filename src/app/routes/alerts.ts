@@ -5,7 +5,7 @@ import { me, requireAuth } from "../middleware/auth.js";
 import { Alert, type AlertKind, type IAlert } from "../models/Alert.js";
 import { Stock } from "../models/Stock.js";
 import { toView, type StockView } from "../utils/stockView.js";
-import { AppError } from "../utils/appError.js";
+import { AppError } from "../utils/AppError.js";
 import { ah } from "../utils/asyncHandler.js";
 import type { Signal } from "../utils/signal.js";
 import { oneOf, symbol as sym } from "../utils/validate.js";

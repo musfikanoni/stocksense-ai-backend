@@ -3,7 +3,7 @@ import { FREE_LIMITS } from "../config/env.js";
 import { me, requireAuth } from "../middleware/auth.js";
 import { Stock } from "../models/Stock.js";
 import { User } from "../models/User.js";
-import { AppError } from "../utils/appError.js";
+import { AppError } from "../utils/AppError.js";
 import { ah } from "../utils/asyncHandler.js";
 import { toView } from "../utils/stockView.js";
 import { symbol as sym } from "../utils/validate.js";

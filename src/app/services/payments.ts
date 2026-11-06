@@ -5,7 +5,7 @@ import { Invoice, type InvoiceStatus } from "../models/Invoice.js";
 import { Plan, type PlanDoc } from "../models/Plan.js";
 import { User, fullName, type Billing, type UserDoc } from "../models/User.js";
 import { WebhookEvent } from "../models/WebhookEvent.js";
-import { AppError } from "../utils/appError.js";
+import { AppError } from "../utils/AppError.js";
 
 export const stripe: Stripe | null = env.stripe.secretKey
   ? new Stripe(env.stripe.secretKey, { maxNetworkRetries: 2, timeout: 15000 })

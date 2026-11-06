@@ -1,6 +1,6 @@
 import type { Request, RequestHandler } from "express";
 import { User, type Role, type UserDoc } from "../models/User.js";
-import { AppError } from "../utils/appError.js";
+import { AppError } from "../utils/AppError.js";
 import { ah } from "../utils/asyncHandler.js";
 import { verify, type TokenPayload } from "../utils/token.js";
 

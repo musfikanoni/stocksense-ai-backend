@@ -5,7 +5,7 @@ import { env } from "../config/env.js";
 import { me, requireAuth } from "../middleware/auth.js";
 import { Alert } from "../models/Alert.js";
 import { User, type UserDoc } from "../models/User.js";
-import { AppError } from "../utils/appError.js";
+import { AppError } from "../utils/AppError.js";
 import { ah } from "../utils/asyncHandler.js";
 import { DISCORD_URL, postToDiscord } from "../services/discord.js";
 import { resetCodeEmail } from "../services/emails.js";

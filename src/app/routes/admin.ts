@@ -7,7 +7,7 @@ import { Invoice, type IInvoice } from "../models/Invoice.js";
 import { Plan } from "../models/Plan.js";
 import { Policy } from "../models/Policy.js";
 import { User, fullName, type IUser } from "../models/User.js";
-import { AppError } from "../utils/appError.js";
+import { AppError } from "../utils/AppError.js";
 import { ah } from "../utils/asyncHandler.js";
 import { mailProvider } from "../services/mailer.js";
 import {
