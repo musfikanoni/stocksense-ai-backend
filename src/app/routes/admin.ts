@@ -17,12 +17,12 @@ import {
 import { escapeRegex, oneOf, pageOf, text } from "../utils/validate.js";
 
 const r = Router();
-r.use(requireAuth, requireRole("admin")); // every route below is admin-only
+r.use(requireAuth, requireRole("admin")); 
 
 const DAY = 86400000;
 const PLAN_LABELS = ["Free", "Premium (Monthly)", "Premium (Yearly)"] as const;
 
-// "Jon Menson" matches first name AND last name; every word must match somewhere
+
 const searchFilter = (q: unknown): FilterQuery<IUser>[] => {
   const words = String(q ?? "")
     .trim()
@@ -35,7 +35,6 @@ const searchFilter = (q: unknown): FilterQuery<IUser>[] => {
   });
 };
 
-// Which optional services are set up on this server, to check a new deployment
 r.get("/system", (_req, res) => {
   res.json({
     email: mailProvider(),
@@ -273,7 +272,7 @@ r.put(
   }),
 );
 
-// ---- bell menu: newest sign-ups and payments
+
 r.get(
   "/notifications",
   ah(async (_req, res) => {

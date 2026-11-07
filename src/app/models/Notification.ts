@@ -1,6 +1,6 @@
 import { Schema, model, type Types } from "mongoose";
 
-// The in-app notifications shown in the bell menu
+
 export interface INotification {
   user: Types.ObjectId;
   title: string;

@@ -11,7 +11,7 @@ import { symbol as sym } from "../utils/validate.js";
 const r = Router();
 r.use(requireAuth);
 
-// Returns the user's stocks in the order they were added
+
 const listFor = async (symbols: string[]) => {
   const docs = await Stock.find({ symbol: { $in: symbols } });
   return symbols.flatMap((s) => docs.filter((d) => d.symbol === s)).map(toView);

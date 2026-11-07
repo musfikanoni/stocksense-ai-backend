@@ -59,7 +59,7 @@ const schema = new Schema<IUser>({
   resetOtp: { type: new Schema({ hash: String, expires: Date, attempts: Number }, { _id: false }), select: false },
 }, { versionKey: false });
 
-// What the API sends: no password fields, plus id, full name and plan label
+
 schema.set("toJSON", {
   transform: (_doc, ret: Record<string, any>) => {
     ret.id = String(ret._id);

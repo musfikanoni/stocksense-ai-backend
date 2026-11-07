@@ -67,7 +67,7 @@ r.get(
   }),
 );
 
-// One request can create several alerts: { symbol, conditions: { price, breakout, signal, volume }, channels: { email, push, discord } }
+
 r.post(
   "/",
   ah(async (req, res) => {

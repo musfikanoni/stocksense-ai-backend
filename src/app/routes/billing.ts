@@ -6,6 +6,7 @@ import { planLabelOf } from "../models/User.js";
 import { createCheckout, createPortal } from "../services/payments.js";
 import { AppError } from "../utils/AppError.js";
 import { ah } from "../utils/asyncHandler.js";
+import { oneOf } from "../utils/validate.js";
 
 
 const r = Router();
@@ -45,7 +46,7 @@ r.post(
   }),
 );
 
-// Stripe's page for updating the card, changing the plan or cancelling
+
 r.post(
   "/portal",
   ah(async (req, res) => {

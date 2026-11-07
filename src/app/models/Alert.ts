@@ -9,8 +9,8 @@ export interface IAlert {
   value: number | Signal;
   channels: { email: boolean; push: boolean; discord: boolean };
   active: boolean;
-  direction?: "above" | "below";      // price and breakout alerts: which way the price has to cross
-  lastSeen?: string;                  // signal alerts: the signal at the last check, so we only react to a change
+  direction?: "above" | "below";      
+  lastSeen?: string;                  
   lastTriggeredAt?: Date;
 }
 

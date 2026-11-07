@@ -20,9 +20,7 @@ export const requireStripe = (): Stripe => {
 const ACTIVE = ["active", "trialing", "past_due"];
 const ENDED = ["canceled", "unpaid", "incomplete_expired"];
 
-// ---------------------------------------------------------------- creating a checkout
 
-// One Stripe price per plan and billing cycle. If an admin changes the plan price, a new price is created.
 async function priceFor(plan: PlanDoc, cycle: Billing): Promise<string> {
   const s = requireStripe();
   const amount = Math.round(
@@ -135,7 +133,8 @@ async function applySubscription(
   user.stripeSubscriptionId = sub.id;
   user.subscriptionStatus = sub.status;
   user.cancelAtPeriodEnd = sub.cancel_at_period_end;
-  user.currentPeriodEnd = new Date(sub.current_period_end * 1000);
+  const periodEnd = sub.items.data[0]?.current_period_end;
+  user.currentPeriodEnd = periodEnd ? new Date(periodEnd * 1000) : undefined;
   if (ACTIVE.includes(sub.status)) {
     const plan = await planById(sub.metadata?.planId);
     if (plan) user.planName = plan.name;
@@ -158,11 +157,15 @@ async function recordInvoice(
   user: UserDoc,
   status: InvoiceStatus,
 ): Promise<void> {
-  const billing: Billing =
-    inv.lines.data[0]?.price?.recurring?.interval === "year"
-      ? "Yearly"
-      : "Monthly";
-  const subObj = typeof inv.subscription === "object" ? inv.subscription : null;
+  const line = inv.lines.data[0] as any;
+  const interval =
+    line?.price?.recurring?.interval ??
+    line?.pricing?.price_details?.price?.recurring?.interval;
+  const billing: Billing = interval === "year" ? "Yearly" : "Monthly";
+  const subObj =
+    typeof (inv as any).subscription === "object"
+      ? (inv as any).subscription
+      : null;
   const planName =
     (await planById(subObj?.metadata?.planId))?.name ?? user.planName;
   const paidAt = status === "Paid" ? inv.status_transitions?.paid_at : null;
@@ -236,12 +239,13 @@ export async function processEvent(
         user,
         event.type === "invoice.paid" ? "Paid" : "Failed",
       );
+      const invSub = (inv as any).subscription;
       if (
         event.type === "invoice.paid" &&
-        typeof inv.subscription === "object" &&
-        inv.subscription
+        typeof invSub === "object" &&
+        invSub
       )
-        await applySubscription(user, inv.subscription);
+        await applySubscription(user, invSub);
       break;
     }
     default:

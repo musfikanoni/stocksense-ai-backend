@@ -2,10 +2,9 @@ import { Schema, model, type HydratedDocument } from "mongoose";
 
 export interface IPlan {
   name: string;
-  price: number;        // price per month in USD
+  price: number;        
   highlight: boolean;
   features: string[];
-  // Stripe product and one price per billing cycle. A new price is made when the amount changes.
   stripe?: { productId?: string; prices?: Partial<Record<"Monthly" | "Yearly", { id: string; amount: number }>> };
 }
 export type PlanDoc = HydratedDocument<IPlan>;

@@ -38,7 +38,7 @@ r.get(
   }),
 );
 
-// Index funds shown in the "Market Bias" panel (declared before "/:symbol")
+
 r.get(
   "/market/bias",
   ah(async (_req, res) => {
@@ -57,7 +57,7 @@ r.get(
   }),
 );
 
-// Where the prices come from and how fresh they are, for a small note under the charts
+
 r.get(
   "/market/status",
   ah(async (_req, res) => {

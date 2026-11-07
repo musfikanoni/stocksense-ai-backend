@@ -1,12 +1,10 @@
 import { env } from "../config/env.js";
 import { TokenBucket } from "../utils/rateLimiter.js";
 
-// Prices come from Twelve Data (free "Basic" plan: 8 requests a minute, 800 a day, US stocks and ETFs).
-// Everything that talks to the provider is in this file, so another provider can replace it.
 export const PROVIDER_NAME = "Twelve Data";
 const BASE = "https://api.twelvedata.com";
 const DAILY_LIMIT = 800;
-const DAILY_SAFETY = 40;       // we stop background work this many requests before the daily limit
+const DAILY_SAFETY = 40;       
 
 export class ProviderError extends Error {
   code: number;
@@ -17,7 +15,7 @@ export interface Quote { price: number; previousClose: number; change: number; v
 export interface Candle { date: string; close: number }
 export interface IntradayPoint { label: string; price: number }
 
-const bucket = new TokenBucket(7, 7);                 // 7 a minute, one below the provider's 8
+const bucket = new TokenBucket(7, 7);                
 const usage = { day: "", used: 0 };
 const today = () => new Date().toISOString().slice(0, 10);
 function count(): void {
@@ -35,7 +33,7 @@ const num = (v: unknown): number | null => {
 
 interface ApiReply { status?: string; code?: number; message?: string }
 
-// background = a job refreshing prices (waits its turn). Not background = a visitor waiting (fails fast if we are out of requests).
+
 async function get<T extends ApiReply>(path: string, params: Record<string, string>, background: boolean): Promise<T> {
   if (!env.twelveDataKey) throw new ProviderError(503, "Market data is not set up on this server.");
   if (background) {
@@ -71,7 +69,7 @@ export async function fetchDaily(symbol: string, background = true): Promise<Can
     .reverse();
 }
 
-// Today's (or the last session's) half-hour prices, for the 1D chart. Kept for 10 minutes so visitors do not use up our requests.
+
 const intradayCache = new Map<string, { at: number; points: IntradayPoint[] }>();
 export async function fetchIntraday(symbol: string): Promise<IntradayPoint[]> {
   const hit = intradayCache.get(symbol);

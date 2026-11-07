@@ -2,7 +2,7 @@ import { Router } from "express";
 import { me, requireAuth } from "../middleware/auth.js";
 import { Alert } from "../models/Alert.js";
 import { Stock } from "../models/Stock.js";
-import { StockView } from "../utils/stockView.js";
+import { StockView, toView } from "../utils/stockView.js";
 import { ah } from "../utils/asyncHandler.js";
 import { Signal } from "../utils/signal.js";
 

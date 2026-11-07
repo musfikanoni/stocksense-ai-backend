@@ -5,8 +5,8 @@ export interface IStock {
   name: string;
   exchange: string;
   kind: "stock" | "index";
-  closes: number[];         // daily closing prices, oldest first (from the market data provider)
-  closeDates: string[];     // the date of each close, "YYYY-MM-DD"
+  closes: number[];         
+  closeDates: string[];     
   dailyUpdatedAt?: Date;
   quote?: { price?: number; previousClose?: number; change?: number; volume?: number | null; marketOpen?: boolean; at?: Date };
 }

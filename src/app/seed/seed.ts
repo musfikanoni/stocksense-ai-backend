@@ -1,6 +1,4 @@
-// Fills the database with starting data.   npm run seed            -> adds anything missing
-//                                          npm run seed:sample     -> also adds a demo user and sample customers (local development only)
-//                                          add --reset to wipe everything first
+
 import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";

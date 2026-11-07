@@ -4,7 +4,6 @@ import { AppError } from "../utils/AppError.js";
 import { ah } from "../utils/asyncHandler.js";
 import { verify, type TokenPayload } from "../utils/token.js";
 
-// Reads the Bearer token, checks it, and loads the user. Runs on every protected route.
 export const requireAuth: RequestHandler = ah(async (req, _res, next) => {
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ") ? header.slice(7) : null;
