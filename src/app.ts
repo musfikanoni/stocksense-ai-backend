@@ -4,24 +4,23 @@ import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
 import { env } from "./app/config/env.js";
 import { errorHandler, notFound } from "./app/middleware/error.js";
-import { stripeWebhook } from "./routes/webhook.js";
-import adminRoutes from "./routes/admin.js";
-import alertRoutes from "./routes/alerts.js";
-import authRoutes from "./routes/auth.js";
-import billingRoutes from "./routes/billing.js";
-import dashboardRoutes from "./routes/dashboard.js";
-import notificationRoutes from "./routes/notifications.js";
-import { plansRouter, policyRouter } from "./routes/plans.js";
-import stockRoutes from "./routes/stocks.js";
-import watchlistRoutes from "./routes/watchlist.js";
+import { stripeWebhook } from "./app/routes/webhook.js";
+import adminRoutes from "./app/routes/admin.js";
+import alertRoutes from "./app/routes/alerts.js";
+import authRoutes from "./app/routes/auth.js";
+import billingRoutes from "./app/routes/billing.js";
+import dashboardRoutes from "./app/routes/dashboard.js";
+import notificationRoutes from "./app/routes/notifications.js";
+import { plansRouter, policyRouter } from "./app/routes/plans.js";
+import stockRoutes from "./app/routes/stocks.js";
+import watchlistRoutes from "./app/routes/watchlist.js";
 
 const app = express();
-app.set("trust proxy", 1);                 // we run behind a proxy on Render/Railway, so rate limits see the real IP
-app.use(helmet());
+app.set("trust proxy", 1);                 
 app.use(cors({
   origin: (origin, cb) => (!origin || env.clientUrls.includes(origin) ? cb(null, true) : cb(new Error("Origin not allowed by CORS"))),
 }));
-// Stripe needs the untouched request body to check its signature, so this route comes before express.json()
+
 app.post("/api/billing/webhook", express.raw({ type: "application/json", limit: "1mb" }), stripeWebhook);
 app.use(express.json({ limit: "20kb" }));
 
