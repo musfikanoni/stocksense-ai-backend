@@ -5,9 +5,10 @@ export interface IStock {
   name: string;
   exchange: string;
   kind: "stock" | "index";
-  closes: number[];         
-  closeDates: string[];     
+  closes: number[];        
+  closeDates: string[];    
   dailyUpdatedAt?: Date;
+  intraday?: { at: Date; price: number }[];     
   quote?: { price?: number; previousClose?: number; change?: number; volume?: number | null; marketOpen?: boolean; at?: Date };
 }
 
@@ -19,6 +20,7 @@ const schema = new Schema<IStock>({
   closes: { type: [Number], default: [] },
   closeDates: { type: [String], default: [] },
   dailyUpdatedAt: Date,
+  intraday: { type: [new Schema({ at: Date, price: Number }, { _id: false })], default: [] },
   quote: { price: Number, previousClose: Number, change: Number, volume: Number, marketOpen: Boolean, at: Date },
 }, { versionKey: false });
 

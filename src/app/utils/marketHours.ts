@@ -4,6 +4,8 @@ function newYork(d: Date) {
   const p = Object.fromEntries(f.formatToParts(d).map((x) => [x.type, x.value]));
   return { weekday: p.weekday, minutes: Number(p.hour) * 60 + Number(p.minute) };
 }
+
+export const newYorkMinutes = (d: Date): number => newYork(d).minutes;
 export const isWeekday = (d: Date) => !["Sat", "Sun"].includes(newYork(d).weekday);
 export function isMarketOpen(d = new Date()): boolean {
   const { minutes } = newYork(d);

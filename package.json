@@ -1,34 +1,40 @@
 {
-  "name": "stocksense-ai",
-  "version": "1.0.0",
-  "type": "module",
+  "name": "stocksense-api",
+  "version": "0.2.0",
   "private": true,
-  "description": "StockSense AI backend starter",
+  "type": "module",
+  "engines": { "node": ">=22" },
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "typecheck": "tsc --noEmit",
     "build": "tsc",
     "start": "node dist/server.js",
-    "typecheck": "tsc --noEmit"
+    "seed": "tsx src/app/seed/seed.ts",
+    "seed:sample": "tsx src/app/seed/seed.ts --sample",
+    "smoke": "tsx src/app/scripts/smoke.ts",
+    "test": "tsx --test \"src/**/*.test.ts\""
   },
   "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "cors": "^2.8.6",
-    "dotenv": "^16.4.7",
-    "express": "^5.1.0",
-    "express-rate-limit": "^8.7.3",
-    "google-auth-library": "^11.3.3",
-    "helmet": "^8.3.0",
-    "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.12.0",
-    "nodemailer": "^10.3.1",
-    "stripe": "^23.1.0"
+    "bcryptjs": "2.4.3",
+    "cors": "2.8.5",
+    "dotenv": "16.4.5",
+    "express": "4.21.1",
+    "google-auth-library": "9.15.0",
+    "express-rate-limit": "7.4.1",
+    "helmet": "8.0.0",
+    "jsonwebtoken": "9.0.2",
+    "mongoose": "8.8.0",
+    "nodemailer": "6.9.16",
+    "stripe": "17.7.0"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^22.15.30",
-    "tsx": "^4.19.4",
-    "typescript": "^5.8.3"
+    "@types/bcryptjs": "2.4.6",
+    "@types/cors": "2.8.17",
+    "@types/express": "4.17.21",
+    "@types/jsonwebtoken": "9.0.7",
+    "@types/node": "22.9.0",
+    "@types/nodemailer": "6.4.17",
+    "tsx": "4.19.2",
+    "typescript": "5.6.3"
   }
 }

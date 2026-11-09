@@ -5,6 +5,7 @@ export interface IPlan {
   price: number;        
   highlight: boolean;
   features: string[];
+  
   stripe?: { productId?: string; prices?: Partial<Record<"Monthly" | "Yearly", { id: string; amount: number }>> };
 }
 export type PlanDoc = HydratedDocument<IPlan>;

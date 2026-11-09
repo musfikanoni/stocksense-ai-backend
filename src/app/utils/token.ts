@@ -5,7 +5,7 @@ export interface TokenPayload {
   sub: string;
   role?: string;
   purpose?: string;
-  v?: number;         
+  v?: number;          
   iat: number;
 }
 

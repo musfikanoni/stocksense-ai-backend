@@ -1,4 +1,4 @@
-// Discord "incoming webhooks": a private address a user creates in their own server, which lets us post a message there.
+
 export const DISCORD_URL = /^https:\/\/(discord|discordapp)\.com\/api\/webhooks\/\d+\/[\w-]+$/;
 
 export async function postToDiscord(webhookUrl: string, content: string): Promise<void> {

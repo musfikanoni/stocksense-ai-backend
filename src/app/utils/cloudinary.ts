@@ -2,11 +2,10 @@ import crypto from "node:crypto";
 import { env } from "../config/env.js";
 import { AppError } from "./AppError.js";
 
-// Profile pictures go straight from the browser to Cloudinary. This server only signs the upload
-// (so nobody else can upload to our account) and then saves the picture's address.
+
 type Params = Record<string, string | number | boolean>;
 
-// Cloudinary's signature: sort the parameters by name, join them as name=value with "&", add the API secret, SHA-1 hash.
+
 export function sign(params: Params, secret: string): string {
   const toSign = Object.keys(params).sort().map((k) => `${k}=${params[k]}`).join("&");
   return crypto.createHash("sha1").update(toSign + secret).digest("hex");
@@ -14,7 +13,7 @@ export function sign(params: Params, secret: string): string {
 
 const { cloudName, apiKey, apiSecret } = env.cloudinary;
 const configured = () => Boolean(cloudName && apiKey && apiSecret);
-// One picture per user: uploading again replaces the old one
+
 export const avatarPublicId = (userId: string) => `stocksense/avatars/${userId}`;
 
 export function uploadTicket(userId: string) {
@@ -27,7 +26,7 @@ export function uploadTicket(userId: string) {
   };
 }
 
-// Only accept addresses that really point at this user's picture in our Cloudinary account
+
 export function isAvatarUrl(url: string, userId: string): boolean {
   if (!cloudName) return false;
   try {
@@ -36,7 +35,7 @@ export function isAvatarUrl(url: string, userId: string): boolean {
   } catch { return false; }
 }
 
-// Square 256px version, smart crop, best format. Cloudinary makes it on the fly from the same address.
+
 export const thumb = (url: string): string =>
   url.includes("/image/upload/c_fill") ? url : url.replace("/image/upload/", "/image/upload/c_fill,g_auto,w_256,h_256,f_auto,q_auto/");
 

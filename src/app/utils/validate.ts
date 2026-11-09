@@ -1,6 +1,5 @@
 import { AppError } from "./AppError.js";
 
-
 export const email = (v: unknown): string => {
   if (typeof v !== "string" || v.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())) throw new AppError(400, "Enter a valid email address.");
   return v.trim().toLowerCase();

@@ -1,10 +1,11 @@
 import { env } from "../config/env.js";
 import { TokenBucket } from "../utils/rateLimiter.js";
 
+
 export const PROVIDER_NAME = "Twelve Data";
 const BASE = "https://api.twelvedata.com";
 const DAILY_LIMIT = 800;
-const DAILY_SAFETY = 40;       
+const DAILY_SAFETY = 40;      
 
 export class ProviderError extends Error {
   code: number;
@@ -23,7 +24,8 @@ function count(): void {
   usage.used += 1;
 }
 export const requestsUsedToday = () => (usage.day === today() ? usage.used : 0);
-export const marketDataConfigured = () => Boolean(env.twelveDataKey);
+
+export const marketDataConfigured = () => env.marketMode === "simulated" || Boolean(env.twelveDataKey);
 export const dailyBudgetLeft = () => DAILY_LIMIT - DAILY_SAFETY - requestsUsedToday();
 
 const num = (v: unknown): number | null => {
@@ -60,7 +62,7 @@ export async function fetchQuote(symbol: string, background = true): Promise<Quo
 }
 
 interface TdSeries extends ApiReply { values?: { datetime: string; close: string }[] }
-// About one year of daily closes, oldest first
+
 export async function fetchDaily(symbol: string, background = true): Promise<Candle[]> {
   const d = await get<TdSeries>("/time_series", { symbol, interval: "1day", outputsize: "260" }, background);
   return (d.values ?? [])

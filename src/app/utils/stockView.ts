@@ -1,7 +1,8 @@
+import { env } from "../config/env.js";
 import type { IStock } from "../models/Stock.js";
 import { analyze, type Analysis } from "./signal.js";
 
-// What the API sends for one stock. Every number can be null: we show what the price provider gave us, and nothing made up.
+
 export interface StockView {
   symbol: string;
   name: string;
@@ -10,8 +11,8 @@ export interface StockView {
   change: number | null;
   changePct: number | null;
   volume: string | null;           
-  volumeM: number | null;        
-  asOf: string | null;           
+  volumeM: number | null;         
+  asOf: string | null;            
   marketOpen: boolean | null;
   signal: Analysis["signal"] | null;
   confidence: number | null;
@@ -20,6 +21,7 @@ export interface StockView {
   breakout: number | null;
   target: number | null;
   reason: string | null;
+  dataSource: "Twelve Data" | "simulated";    
 }
 
 type StockData = Pick<IStock, "symbol" | "name" | "exchange" | "closes" | "closeDates" | "quote" | "dailyUpdatedAt">;
@@ -51,5 +53,6 @@ export function toView(s: StockData): StockView {
     asOf: (q?.at ?? s.dailyUpdatedAt)?.toISOString() ?? null, marketOpen: typeof q?.marketOpen === "boolean" ? q.marketOpen : null,
     signal: a?.signal ?? null, confidence: a?.confidence ?? null, support: a?.support ?? null, resistance: a?.resistance ?? null,
     breakout: a?.breakout ?? null, target: a?.target ?? null, reason: a?.reason ?? null,
+    dataSource: env.marketMode === "simulated" ? "simulated" : "Twelve Data",
   };
 }

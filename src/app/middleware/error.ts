@@ -12,6 +12,7 @@ interface KnownError extends Error {
   errors?: Record<string, { message: string }>;
 }
 
+
 export const errorHandler: ErrorRequestHandler = (err: KnownError, _req, res, _next) => {
   if (err.type === "entity.parse.failed") return void res.status(400).json({ message: "Invalid JSON body." });
   if (err.message === "Origin not allowed by CORS") return void res.status(403).json({ message: err.message });

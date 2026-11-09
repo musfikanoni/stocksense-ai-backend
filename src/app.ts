@@ -16,11 +16,12 @@ import stockRoutes from "./app/routes/stocks.js";
 import watchlistRoutes from "./app/routes/watchlist.js";
 
 const app = express();
-app.set("trust proxy", 1);                 
+app.set("trust proxy", 1);                 // we run behind a proxy on Render/Railway, so rate limits see the real IP
+app.use(helmet());
 app.use(cors({
   origin: (origin, cb) => (!origin || env.clientUrls.includes(origin) ? cb(null, true) : cb(new Error("Origin not allowed by CORS"))),
 }));
-
+// Stripe needs the untouched request body to check its signature, so this route comes before express.json()
 app.post("/api/billing/webhook", express.raw({ type: "application/json", limit: "1mb" }), stripeWebhook);
 app.use(express.json({ limit: "20kb" }));
 
@@ -29,6 +30,18 @@ const limiter = (limit: number) =>
 app.use("/api", limiter(600));
 app.use(["/api/auth/login", "/api/auth/signup", "/api/auth/google", "/api/auth/forgot-password", "/api/auth/verify-otp", "/api/auth/reset-password"], limiter(30));
 
+app.get("/", (_req, res) => {
+  res.json({
+    name: "StockSense API",
+    status: "healthy",
+    endpoints: {
+      health: "/api/health",
+      stocks: "/api/stocks",
+      plans: "/api/plans",
+      auth: "/api/auth",
+    },
+  });
+});
 app.get("/api/health", (_req, res) => { res.json({ ok: true }); });
 app.use("/api/auth", authRoutes);
 app.use("/api/stocks", stockRoutes);

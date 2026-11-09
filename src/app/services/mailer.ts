@@ -1,14 +1,13 @@
-import nodemailer, { type Transporter } from "nodemailer";
+import nodemailer from "nodemailer";
 import { env } from "../config/env.js";
 
 export interface MailInput { to: string; subject: string; text: string; html?: string }
 export type MailProvider = "resend" | "smtp";
 
-
 export const mailProvider = (): MailProvider | null =>
   env.mail.resendKey && env.mail.from ? "resend" : env.mail.smtpHost && env.mail.smtpUser && env.mail.smtpPass ? "smtp" : null;
 
-let transport: Transporter | null = null;
+let transport: nodemailer.Transporter | null = null;
 
 export async function sendMail(m: MailInput): Promise<void> {
   const provider = mailProvider();

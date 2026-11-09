@@ -4,7 +4,7 @@ import { User, type UserDoc } from "../models/User.js";
 import { AppError } from "./AppError.js";
 
 export interface GoogleProfile {
-  sub: string;           
+  sub: string;            
   email: string;
   emailVerified: boolean;
   name: string;
@@ -29,7 +29,7 @@ export async function signInWithGoogle(p: GoogleProfile): Promise<UserDoc> {
   if (!p.emailVerified) throw new AppError(401, "Your Google email is not verified.");
   let user = await User.findOne({ googleId: p.sub });
   if (!user) {
-
+   
     if (await User.exists({ email: p.email })) throw new AppError(409, "An account with this email already exists. Log in with your password.");
     const [first, ...rest] = (p.name || p.email.split("@")[0]).trim().split(/\s+/);
     user = new User({ firstName: first.slice(0, 40), lastName: rest.join(" ").slice(0, 40), email: p.email, googleId: p.sub });

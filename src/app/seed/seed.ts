@@ -23,7 +23,7 @@ if (process.argv.includes("--reset")) {
 }
 
 for (const s of [...data.stocks, ...data.indexes]) {
-  // Only the list of stocks. Prices are filled in by the background job from the market data provider.
+  
   await Stock.updateOne({ symbol: s.symbol }, { $set: { name: s.name, kind: s.kind, exchange: s.exchange }, $setOnInsert: { closes: [], closeDates: [] } }, { upsert: true });
 }
 for (const p of data.plans) await Plan.updateOne({ name: p.name }, { $set: p }, { upsert: true });

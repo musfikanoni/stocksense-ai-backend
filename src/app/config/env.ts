@@ -24,9 +24,11 @@ export const env = {
   geminiKey: process.env.GEMINI_API_KEY || "",
   geminiModel: process.env.GEMINI_MODEL || "gemini-2.5-flash",
   bcryptRounds: Number(process.env.BCRYPT_ROUNDS) || 12,
+  
+  marketMode: (process.env.MARKET_DATA_MODE === "simulated" ? "simulated" : "live") as "live" | "simulated",
   twelveDataKey: process.env.TWELVE_DATA_API_KEY || "",
   quoteRefreshMinutes: Math.max(5, Number(process.env.QUOTE_REFRESH_MINUTES) || 30),
-  // Background jobs (price refresh and alert checks). Off in tests.
+
   jobsEnabled: process.env.JOBS_ENABLED ? process.env.JOBS_ENABLED === "true" : process.env.NODE_ENV !== "test",
   mail: {
     resendKey: process.env.RESEND_API_KEY || "",
@@ -44,9 +46,9 @@ export const env = {
     apiKey: process.env.CLOUDINARY_API_KEY || "",
     apiSecret: process.env.CLOUDINARY_API_SECRET || "",
   },
-  // Only for local development: returns the password-reset code in the API response because no email service is connected yet.
+
   showDevOtp: process.env.SHOW_DEV_OTP === "true" && !isProd,
 };
 
-// Limits for the Free plan (matches the plan features shown in the frontend)
+
 export const FREE_LIMITS = { watchlist: 5, alerts: 3 };

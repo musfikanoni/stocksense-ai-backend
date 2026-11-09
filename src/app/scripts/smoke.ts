@@ -1,5 +1,4 @@
-// Calls the running API from start to finish.   1) npm run dev   2) npm run seed   3) npm run smoke
-// The server needs SHOW_DEV_OTP=true (see .env.example) so the password reset step can read the code.
+
 const BASE = process.env.API_URL || "http://localhost:5000/api";
 const ADMIN = { email: process.env.ADMIN_EMAIL || "admin@stocksense.dev", password: process.env.ADMIN_PASSWORD || "Admin@12345" };
 let failed = 0;

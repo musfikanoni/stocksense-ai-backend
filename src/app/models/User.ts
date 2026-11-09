@@ -8,13 +8,13 @@ export interface IUser {
   firstName: string;
   lastName: string;
   email: string;
-  passwordHash?: string;        // missing for accounts that only use "Continue with Google"
+  passwordHash?: string;       
   googleId?: string;
   avatarUrl?: string;
-  discordWebhookUrl?: string;      // where the Discord alert channel posts
+  discordWebhookUrl?: string;     
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
-  subscriptionStatus?: string;       // Stripe status: active, past_due, canceled ...
+  subscriptionStatus?: string;     
   currentPeriodEnd?: Date;
   cancelAtPeriodEnd?: boolean;
   role: Role;
@@ -25,7 +25,7 @@ export interface IUser {
   joinedAt: Date;
   lastLoginAt?: Date;
   passwordChangedAt?: Date;
-  tokenVersion?: number;       // goes up on every password change, which makes all older login tokens invalid
+  tokenVersion?: number;       
   resetOtp?: { hash?: string; expires?: Date; attempts?: number };
 }
 export type UserDoc = HydratedDocument<IUser>;

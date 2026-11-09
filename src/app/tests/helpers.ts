@@ -15,7 +15,7 @@ export async function boot(extraEnv: Record<string, string> = {}) {
   });
   const { connectDb } = await import("../config/db.js");
   await connectDb();
-  const { default: app } = await import("../app.js");
+  const { default: app } = await import("../../app.js");
   const server: Server = await new Promise((ok) => { const s = app.listen(0, () => ok(s)); });
   const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}/api`;
 

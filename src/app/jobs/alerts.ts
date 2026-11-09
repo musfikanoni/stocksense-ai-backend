@@ -11,7 +11,7 @@ import type { HydratedDocument } from "mongoose";
 
 export interface AlertRule { kind: AlertKind; value: number | string; direction?: "above" | "below"; lastSeen?: string }
 
-// Has this alert's condition just been met?
+
 export function shouldFire(a: AlertRule, v: StockView): boolean {
   switch (a.kind) {
     case "price":
@@ -40,8 +40,10 @@ export function describeAlert(a: AlertRule, v: StockView): { title: string; body
 }
 
 async function fire(alert: HydratedDocument<IAlert>, user: UserDoc, view: StockView): Promise<void> {
-  const { title, body } = describeAlert(alert, view);
-  // Switch the alert off first, so a failure while notifying can never make it fire twice
+  const described = describeAlert(alert, view);
+  const title = described.title;
+  const body = env.marketMode === "simulated" ? `${described.body} (Simulated price, not real market data.)` : described.body;
+  
   alert.active = false;
   alert.lastTriggeredAt = new Date();
   await alert.save();
@@ -56,7 +58,7 @@ async function fire(alert: HydratedDocument<IAlert>, user: UserDoc, view: StockV
   }
 }
 
-// Free plan alerts are checked once a day after the market closes ("end-of-day alerts"). Premium alerts after every price refresh.
+
 export async function evaluateAlerts(opts: { includeFree: boolean }): Promise<{ checked: number; fired: number }> {
   const alerts = await Alert.find({ active: true });
   if (!alerts.length) return { checked: 0, fired: 0 };
