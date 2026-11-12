@@ -16,17 +16,30 @@ import stockRoutes from "./app/routes/stocks.js";
 import watchlistRoutes from "./app/routes/watchlist.js";
 const app = express();
 app.set("trust proxy", 1); // we run behind a proxy on Render/Railway, so rate limits see the real IP
-app.use(helmet());
+const helmetMiddleware = helmet.default || helmet;
+app.use(helmetMiddleware());
 app.use(cors({
     origin: (origin, cb) => (!origin || env.clientUrls.includes(origin) ? cb(null, true) : cb(new Error("Origin not allowed by CORS"))),
 }));
+const apiPrefixes = ["/api", "/api/v1"];
 // Stripe needs the untouched request body to check its signature, so this route comes before express.json()
-app.post("/api/billing/webhook", express.raw({ type: "application/json", limit: "1mb" }), stripeWebhook);
+apiPrefixes.forEach((prefix) => {
+    app.post(`${prefix}/billing/webhook`, express.raw({ type: "application/json", limit: "1mb" }), stripeWebhook);
+});
 app.use(express.json({ limit: "20kb" }));
 const limiter = (limit) => rateLimit({ windowMs: 15 * 60 * 1000, limit, standardHeaders: "draft-7", legacyHeaders: false, skip: () => env.isTest, message: { message: "Too many requests. Try again in a few minutes." } });
-app.use("/api", limiter(600));
-app.use(["/api/auth/login", "/api/auth/signup", "/api/auth/google", "/api/auth/forgot-password", "/api/auth/verify-otp", "/api/auth/reset-password"], limiter(30));
-app.get("/", (_req, res) => {
+apiPrefixes.forEach((prefix) => {
+    app.use(prefix, limiter(600));
+    app.use([
+        `${prefix}/auth/login`,
+        `${prefix}/auth/signup`,
+        `${prefix}/auth/google`,
+        `${prefix}/auth/forgot-password`,
+        `${prefix}/auth/verify-otp`,
+        `${prefix}/auth/reset-password`,
+    ], limiter(30));
+});
+const apiStatus = (_req, res) => {
     res.json({
         name: "StockSense API",
         status: "healthy",
@@ -37,18 +50,24 @@ app.get("/", (_req, res) => {
             auth: "/api/auth",
         },
     });
+};
+app.get("/", apiStatus);
+const apiRouter = express.Router();
+apiRouter.get("/", apiStatus);
+apiRouter.get("/health", (_req, res) => { res.json({ ok: true }); });
+apiRouter.use("/auth", authRoutes);
+apiRouter.use("/stocks", stockRoutes);
+apiRouter.use("/watchlist", watchlistRoutes);
+apiRouter.use("/alerts", alertRoutes);
+apiRouter.use("/plans", plansRouter);
+apiRouter.use("/policy", policyRouter);
+apiRouter.use("/billing", billingRoutes);
+apiRouter.use("/dashboard", dashboardRoutes);
+apiRouter.use("/notifications", notificationRoutes);
+apiRouter.use("/admin", adminRoutes);
+apiPrefixes.forEach((prefix) => {
+    app.use(prefix, apiRouter);
 });
-app.get("/api/health", (_req, res) => { res.json({ ok: true }); });
-app.use("/api/auth", authRoutes);
-app.use("/api/stocks", stockRoutes);
-app.use("/api/watchlist", watchlistRoutes);
-app.use("/api/alerts", alertRoutes);
-app.use("/api/plans", plansRouter);
-app.use("/api/policy", policyRouter);
-app.use("/api/billing", billingRoutes);
-app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/notifications", notificationRoutes);
-app.use("/api/admin", adminRoutes);
 app.use(notFound);
 app.use(errorHandler);
 export default app;

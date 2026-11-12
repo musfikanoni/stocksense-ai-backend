@@ -17,7 +17,8 @@ import watchlistRoutes from "./app/routes/watchlist.js";
 
 const app = express();
 app.set("trust proxy", 1);                 // we run behind a proxy on Render/Railway, so rate limits see the real IP
-app.use(helmet());
+const helmetMiddleware: any = (helmet as any).default || helmet;
+app.use(helmetMiddleware());
 app.use(cors({
   origin: (origin, cb) => (!origin || env.clientUrls.includes(origin) ? cb(null, true) : cb(new Error("Origin not allowed by CORS"))),
 }));
