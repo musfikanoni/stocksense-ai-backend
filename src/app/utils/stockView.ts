@@ -7,6 +7,7 @@ export interface StockView {
   symbol: string;
   name: string;
   exchange: string;
+  logoUrl: string;
   price: number | null;
   change: number | null;
   changePct: number | null;
@@ -48,7 +49,9 @@ export function toView(s: StockData): StockView {
   const a: Analysis | null = closes.length >= 30 ? analyze(closes) : null;
   const vol = typeof q?.volume === "number" ? q.volume : null;
   return {
-    symbol: s.symbol, name: s.name, exchange: s.exchange, price, change, changePct: change !== null && base ? r2((change / base) * 100) : null,
+    symbol: s.symbol, name: s.name, exchange: s.exchange,
+    logoUrl: `https://assets.parqet.com/logos/symbol/${s.symbol}`,
+    price, change, changePct: change !== null && base ? r2((change / base) * 100) : null,
     volume: vol !== null ? formatVolume(vol) : null, volumeM: vol !== null ? vol / 1e6 : null,
     asOf: (q?.at ?? s.dailyUpdatedAt)?.toISOString() ?? null, marketOpen: typeof q?.marketOpen === "boolean" ? q.marketOpen : null,
     signal: a?.signal ?? null, confidence: a?.confidence ?? null, support: a?.support ?? null, resistance: a?.resistance ?? null,
