@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
+import { connectDb } from "./app/config/db.js";
 import { env } from "./app/config/env.js";
 import { errorHandler, notFound } from "./app/middleware/error.js";
 import { stripeWebhook } from "./app/routes/webhook.js";
@@ -21,7 +22,17 @@ app.use(helmetMiddleware());
 app.use(cors({
     origin: (origin, cb) => (!origin || env.clientUrls.includes(origin) ? cb(null, true) : cb(new Error("Origin not allowed by CORS"))),
 }));
-const apiPrefixes = ["/api", "/api/v1"];
+const apiPrefixes = ["/api", "/v1/api", "/api/v1"];
+// Ensure MongoDB is connected (crucial for serverless environments like Vercel)
+app.use(async (_req, _res, next) => {
+    try {
+        await connectDb();
+        next();
+    }
+    catch (err) {
+        next(err);
+    }
+});
 // Stripe needs the untouched request body to check its signature, so this route comes before express.json()
 apiPrefixes.forEach((prefix) => {
     app.post(`${prefix}/billing/webhook`, express.raw({ type: "application/json", limit: "1mb" }), stripeWebhook);
