@@ -118,7 +118,7 @@ export const env = {
     : process.env.NODE_ENV !== "test",
 
   mail: {
-    provider: process.env.MAIL_PROVIDER || "resend",
+    provider: process.env.MAIL_PROVIDER || (process.env.SMTP_HOST ? "smtp" : "resend"),
 
     resendKey: process.env.RESEND_API_KEY || "",
     from: process.env.MAIL_FROM || "",

@@ -10,13 +10,15 @@ export interface GoogleProfile {
   name: string;
 }
 
-const client = env.googleClientId ? new OAuth2Client(env.googleClientId) : null;
+const DEFAULT_GOOGLE_CLIENT_ID = "1068876994935-ungitm215r12krguq217sisdr7cp4en5.apps.googleusercontent.com";
 
 export async function verifyGoogleCredential(credential: unknown): Promise<GoogleProfile> {
-  if (!client) throw new AppError(503, "Google sign-in is not set up on this server.");
+  const clientId = env.googleClientId || process.env.GOOGLE_CLIENT_ID || DEFAULT_GOOGLE_CLIENT_ID;
+  if (!clientId) throw new AppError(503, "Google sign-in is not set up on this server.");
+  const client = new OAuth2Client(clientId);
   if (typeof credential !== "string" || credential.length < 20 || credential.length > 4000) throw new AppError(400, "Google sign-in failed. Try again.");
   try {
-    const ticket = await client.verifyIdToken({ idToken: credential, audience: env.googleClientId });
+    const ticket = await client.verifyIdToken({ idToken: credential, audience: clientId });
     const p = ticket.getPayload();
     if (!p?.sub || !p.email) throw new Error("no email in token");
     return { sub: p.sub, email: p.email.toLowerCase(), emailVerified: p.email_verified === true, name: p.name ?? "" };

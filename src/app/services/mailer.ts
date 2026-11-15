@@ -50,22 +50,20 @@ export type MailProvider = "resend" | "smtp" | "apps_script";
 export const mailProvider = (): MailProvider | null => {
   const provider = env.mail.provider;
 
-  if (provider === "apps_script") {
-    return env.mail.appsScriptUrl && env.mail.mailSecret
-      ? "apps_script"
-      : null;
+  if (provider === "apps_script" && env.mail.appsScriptUrl && env.mail.mailSecret) {
+    return "apps_script";
   }
 
-  if (provider === "resend") {
-    return env.mail.resendKey && env.mail.from ? "resend" : null;
+  if (provider === "resend" && env.mail.resendKey && env.mail.from) {
+    return "resend";
   }
 
-  if (provider === "smtp") {
-    return env.mail.smtpHost &&
-      env.mail.smtpUser &&
-      env.mail.smtpPass
-      ? "smtp"
-      : null;
+  if (env.mail.smtpHost && env.mail.smtpUser && env.mail.smtpPass) {
+    return "smtp";
+  }
+
+  if (env.mail.resendKey && env.mail.from) {
+    return "resend";
   }
 
   return null;
