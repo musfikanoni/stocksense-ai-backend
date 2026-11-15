@@ -6,6 +6,7 @@ import { jobState } from "../jobs/marketRefresh.js";
 import { Invoice, type IInvoice } from "../models/Invoice.js";
 import { Plan } from "../models/Plan.js";
 import { Policy } from "../models/Policy.js";
+import { Review, type IReview } from "../models/Review.js";
 import { User, fullName, type IUser } from "../models/User.js";
 import { AppError } from "../utils/AppError.js";
 import { ah } from "../utils/asyncHandler.js";
@@ -137,6 +138,44 @@ r.get("/notifications", ah(async (_req, res) => {
     ...invoices.map((i) => ({ text: `Payment received. $${i.amount} ${i.planLabel} payment completed successfully.`, at: i.date })),
   ].sort((a, b) => b.at.getTime() - a.at.getTime());
   res.json(items);
+}));
+
+// ---- reviews
+r.get("/reviews", ah(async (req, res) => {
+  const { page, limit, skip } = pageOf(req.query);
+  const match: FilterQuery<IReview> = {};
+  if (req.query.status && ["pending", "approved", "rejected"].includes(String(req.query.status))) {
+    match.status = req.query.status as "pending" | "approved" | "rejected";
+  }
+  if (req.query.q) {
+    const rx = new RegExp(escapeRegex(String(req.query.q).trim().slice(0, 60)), "i");
+    match.$or = [{ name: rx }, { comment: rx }, { role: rx }];
+  }
+
+  const [reviews, total] = await Promise.all([
+    Review.find(match).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    Review.countDocuments(match),
+  ]);
+
+  res.json({
+    reviews,
+    total,
+    page,
+    pages: Math.max(1, Math.ceil(total / limit)),
+  });
+}));
+
+r.patch("/reviews/:id/status", ah(async (req, res) => {
+  const status = oneOf(req.body?.status, ["pending", "approved", "rejected"] as const, "Review status");
+  const review = await Review.findByIdAndUpdate(req.params.id, { status }, { new: true });
+  if (!review) throw new AppError(404, "Review not found.");
+  res.json({ message: `Review marked as ${status}.`, review });
+}));
+
+r.delete("/reviews/:id", ah(async (req, res) => {
+  const review = await Review.findByIdAndDelete(req.params.id);
+  if (!review) throw new AppError(404, "Review not found.");
+  res.json({ message: "Review deleted successfully." });
 }));
 
 export default r;
