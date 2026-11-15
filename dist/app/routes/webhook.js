@@ -4,6 +4,9 @@ import { AppError } from "../utils/AppError.js";
 import { ah } from "../utils/asyncHandler.js";
 export const stripeWebhook = ah(async (req, res) => {
     const stripe = requireStripe();
+    if (!env.stripe.webhookSecret) {
+        env.stripe.webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
+    }
     if (!env.stripe.webhookSecret)
         throw new AppError(503, "Payments are not set up on this server.");
     const signature = req.headers["stripe-signature"];

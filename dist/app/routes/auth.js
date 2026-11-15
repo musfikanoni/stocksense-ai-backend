@@ -12,6 +12,7 @@ import { resetCodeEmail } from "../services/emails.js";
 import { mailProvider, sendMail } from "../services/mailer.js";
 import { isAvatarUrl, removeAvatar, uploadTicket } from "../utils/cloudinary.js";
 import { signInWithGoogle, verifyGoogleCredential } from "../utils/googleAuth.js";
+import { syncUserSubscription } from "../services/payments.js";
 import { signAccess, signReset, verify } from "../utils/token.js";
 import { email, password, text } from "../utils/validate.js";
 const r = Router();
@@ -109,7 +110,13 @@ r.post("/reset-password", ah(async (req, res) => {
     await user.save();
     res.json({ message: "Password updated. You can log in now." });
 }));
-r.get("/me", requireAuth, (req, res) => { res.json({ user: me(req) }); });
+r.get("/me", requireAuth, ah(async (req, res) => {
+    const user = me(req);
+    if (user.stripeCustomerId && user.planName === "Free") {
+        await syncUserSubscription(user);
+    }
+    res.json({ user });
+}));
 r.patch("/me", requireAuth, ah(async (req, res) => {
     const b = req.body || {};
     const user = me(req);

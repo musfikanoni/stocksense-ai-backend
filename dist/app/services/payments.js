@@ -1,13 +1,24 @@
 import mongoose from "mongoose";
 import Stripe from "stripe";
+import dotenv from "dotenv";
 import { env } from "../config/env.js";
 import { Invoice } from "../models/Invoice.js";
 import { Plan } from "../models/Plan.js";
 import { User, fullName } from "../models/User.js";
 import { WebhookEvent } from "../models/WebhookEvent.js";
 import { AppError } from "../utils/AppError.js";
-export const stripe = env.stripe.secretKey ? new Stripe(env.stripe.secretKey, { maxNetworkRetries: 2, timeout: 15000 }) : null;
+export let stripe = env.stripe.secretKey ? new Stripe(env.stripe.secretKey, { maxNetworkRetries: 2, timeout: 15000 }) : null;
 export const requireStripe = () => {
+    if (!stripe) {
+        if (!env.stripe.secretKey) {
+            dotenv.config();
+            env.stripe.secretKey = process.env.STRIPE_SECRET_KEY || "";
+            env.stripe.webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
+        }
+        if (env.stripe.secretKey) {
+            stripe = new Stripe(env.stripe.secretKey, { maxNetworkRetries: 2, timeout: 15000 });
+        }
+    }
     if (!stripe)
         throw new AppError(503, "Payments are not set up on this server.");
     return stripe;
@@ -72,10 +83,16 @@ async function applySubscription(user, sub) {
     user.cancelAtPeriodEnd = sub.cancel_at_period_end;
     user.currentPeriodEnd = new Date(sub.current_period_end * 1000);
     if (ACTIVE.includes(sub.status)) {
-        const plan = await planById(sub.metadata?.planId);
+        let plan = await planById(sub.metadata?.planId);
+        if (!plan && sub.items?.data?.[0]?.price?.metadata?.planId) {
+            plan = await planById(sub.items.data[0].price.metadata.planId);
+        }
+        if (!plan) {
+            plan = await Plan.findOne({ price: { $gt: 0 } });
+        }
         if (plan)
             user.planName = plan.name;
-        user.billingCycle = sub.items.data[0]?.price.recurring?.interval === "year" ? "Yearly" : "Monthly";
+        user.billingCycle = sub.items?.data?.[0]?.price?.recurring?.interval === "year" ? "Yearly" : "Monthly";
     }
     else if (ENDED.includes(sub.status)) {
         user.planName = "Free";
@@ -86,10 +103,44 @@ async function applySubscription(user, sub) {
     }
     await user.save();
 }
+export async function syncUserSubscription(user) {
+    if (!user.stripeCustomerId)
+        return;
+    try {
+        const s = requireStripe();
+        if (!s)
+            return;
+        const subs = await s.subscriptions.list({
+            customer: user.stripeCustomerId,
+            status: "all",
+            limit: 1,
+        });
+        if (subs.data.length > 0) {
+            const sub = subs.data[0];
+            await applySubscription(user, sub);
+        }
+        const invoices = await s.invoices.list({
+            customer: user.stripeCustomerId,
+            limit: 10,
+        });
+        for (const inv of invoices.data) {
+            const status = inv.status === "paid" ? "Paid" : inv.status === "open" ? "Pending" : "Failed";
+            await recordInvoice(inv, user, status);
+        }
+    }
+    catch {
+        // Ignore stripe sync errors if network drops
+    }
+}
 async function recordInvoice(inv, user, status) {
-    const billing = inv.lines.data[0]?.price?.recurring?.interval === "year" ? "Yearly" : "Monthly";
+    const billing = inv.lines?.data?.[0]?.price?.recurring?.interval === "year" ? "Yearly" : (user.billingCycle ?? "Monthly");
     const subObj = typeof inv.subscription === "object" ? inv.subscription : null;
-    const planName = (await planById(subObj?.metadata?.planId))?.name ?? user.planName;
+    let planName = user.planName && user.planName !== "Free" ? user.planName : "Premium";
+    if (subObj?.metadata?.planId) {
+        const p = await planById(subObj.metadata.planId);
+        if (p)
+            planName = p.name;
+    }
     const paidAt = status === "Paid" ? inv.status_transitions?.paid_at : null;
     const fields = {
         user: user._id, tx: inv.id, stripeInvoiceId: inv.id, hostedUrl: inv.hosted_invoice_url ?? undefined,

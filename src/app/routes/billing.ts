@@ -3,7 +3,7 @@ import { me, requireAuth } from "../middleware/auth.js";
 import { Invoice } from "../models/Invoice.js";
 import { Plan } from "../models/Plan.js";
 import { planLabelOf } from "../models/User.js";
-import { createCheckout, createPortal } from "../services/payments.js";
+import { createCheckout, createPortal, syncUserSubscription } from "../services/payments.js";
 import { AppError } from "../utils/AppError.js";
 import { ah } from "../utils/asyncHandler.js";
 import { oneOf } from "../utils/validate.js";
@@ -13,6 +13,12 @@ r.use(requireAuth);
 
 r.get("/", ah(async (req, res) => {
   const user = me(req);
+  if (user.stripeCustomerId) {
+    const count = await Invoice.countDocuments({ user: user._id });
+    if (count === 0 || user.planName === "Free") {
+      await syncUserSubscription(user);
+    }
+  }
   const invoices = await Invoice.find({ user: user._id }).sort({ date: -1 });
   res.json({
     plan: {
