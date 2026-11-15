@@ -32,20 +32,17 @@ import { env } from "../config/env.js";
 import nodemailer from "nodemailer";
 export const mailProvider = () => {
     const provider = env.mail.provider;
-    if (provider === "apps_script") {
-        return env.mail.appsScriptUrl && env.mail.mailSecret
-            ? "apps_script"
-            : null;
+    if (provider === "apps_script" && env.mail.appsScriptUrl && env.mail.mailSecret) {
+        return "apps_script";
     }
-    if (provider === "resend") {
-        return env.mail.resendKey && env.mail.from ? "resend" : null;
+    if (provider === "resend" && env.mail.resendKey && env.mail.from) {
+        return "resend";
     }
-    if (provider === "smtp") {
-        return env.mail.smtpHost &&
-            env.mail.smtpUser &&
-            env.mail.smtpPass
-            ? "smtp"
-            : null;
+    if (env.mail.smtpHost && env.mail.smtpUser && env.mail.smtpPass) {
+        return "smtp";
+    }
+    if (env.mail.resendKey && env.mail.from) {
+        return "resend";
     }
     return null;
 };
@@ -62,6 +59,8 @@ async function sendWithAppsScript(m) {
             subject: m.subject,
             text: m.text,
             html: m.html,
+            name: "StockSense Support",
+            replyTo: env.mail.from || env.mail.smtpUser || "musfika1425@gmail.com",
         }),
         signal: AbortSignal.timeout(15000),
     });
@@ -86,8 +85,37 @@ export async function sendMail(m) {
         throw new Error("Email provider is not configured correctly on this server.");
     }
     if (provider === "apps_script") {
-        await sendWithAppsScript(m);
-        return;
+        try {
+            await sendWithAppsScript(m);
+            return;
+        }
+        catch (err) {
+            if (env.mail.smtpHost && env.mail.smtpUser && env.mail.smtpPass) {
+                console.warn("Apps Script mail failed, trying SMTP fallback:", err.message);
+                transport ??= nodemailer.createTransport({
+                    host: env.mail.smtpHost,
+                    port: env.mail.smtpPort,
+                    secure: env.mail.smtpPort === 465,
+                    auth: {
+                        user: env.mail.smtpUser,
+                        pass: env.mail.smtpPass,
+                    },
+                    connectionTimeout: 10000,
+                    socketTimeout: 15000,
+                });
+                const sender = `"StockSense Support" <${env.mail.smtpUser}>`;
+                await transport.sendMail({
+                    from: sender,
+                    replyTo: sender,
+                    to: m.to,
+                    subject: m.subject,
+                    text: m.text,
+                    html: m.html,
+                });
+                return;
+            }
+            throw err;
+        }
     }
     if (provider === "resend") {
         const response = await fetch("https://api.resend.com/emails", {
@@ -122,8 +150,10 @@ export async function sendMail(m) {
             connectionTimeout: 10000,
             socketTimeout: 15000,
         });
+        const sender = `"StockSense Support" <${env.mail.smtpUser}>`;
         await transport.sendMail({
-            from: env.mail.smtpUser,
+            from: sender,
+            replyTo: sender,
             to: m.to,
             subject: m.subject,
             text: m.text,

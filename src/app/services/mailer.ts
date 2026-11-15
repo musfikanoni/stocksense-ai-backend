@@ -83,6 +83,8 @@ async function sendWithAppsScript(m: MailInput): Promise<void> {
       subject: m.subject,
       text: m.text,
       html: m.html,
+      name: "StockSense Support",
+      replyTo: env.mail.from || env.mail.smtpUser || "musfika1425@gmail.com",
     }),
     signal: AbortSignal.timeout(15000),
   });
@@ -122,8 +124,36 @@ export async function sendMail(m: MailInput): Promise<void> {
   }
 
   if (provider === "apps_script") {
-    await sendWithAppsScript(m);
-    return;
+    try {
+      await sendWithAppsScript(m);
+      return;
+    } catch (err) {
+      if (env.mail.smtpHost && env.mail.smtpUser && env.mail.smtpPass) {
+        console.warn("Apps Script mail failed, trying SMTP fallback:", (err as Error).message);
+        transport ??= nodemailer.createTransport({
+          host: env.mail.smtpHost,
+          port: env.mail.smtpPort,
+          secure: env.mail.smtpPort === 465,
+          auth: {
+            user: env.mail.smtpUser,
+            pass: env.mail.smtpPass,
+          },
+          connectionTimeout: 10000,
+          socketTimeout: 15000,
+        });
+        const sender = `"StockSense Support" <${env.mail.smtpUser}>`;
+        await transport.sendMail({
+          from: sender,
+          replyTo: sender,
+          to: m.to,
+          subject: m.subject,
+          text: m.text,
+          html: m.html,
+        });
+        return;
+      }
+      throw err;
+    }
   }
 
   if (provider === "resend") {
@@ -165,8 +195,10 @@ export async function sendMail(m: MailInput): Promise<void> {
       socketTimeout: 15000,
     });
 
+    const sender = `"StockSense Support" <${env.mail.smtpUser}>`;
     await transport.sendMail({
-      from: env.mail.smtpUser,
+      from: sender,
+      replyTo: sender,
       to: m.to,
       subject: m.subject,
       text: m.text,

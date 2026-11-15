@@ -10,6 +10,7 @@ import adminRoutes from "./app/routes/admin.js";
 import alertRoutes from "./app/routes/alerts.js";
 import authRoutes from "./app/routes/auth.js";
 import billingRoutes from "./app/routes/billing.js";
+import contactRoutes from "./app/routes/contact.js";
 import dashboardRoutes from "./app/routes/dashboard.js";
 import notificationRoutes from "./app/routes/notifications.js";
 import { plansRouter, policyRouter } from "./app/routes/plans.js";
@@ -77,6 +78,7 @@ apiRouter.use("/billing", billingRoutes);
 apiRouter.use("/dashboard", dashboardRoutes);
 apiRouter.use("/notifications", notificationRoutes);
 apiRouter.use("/reviews", reviewRoutes);
+apiRouter.use("/contact", contactRoutes);
 apiRouter.use("/admin", adminRoutes);
 apiPrefixes.forEach((prefix) => {
     app.use(prefix, apiRouter);
