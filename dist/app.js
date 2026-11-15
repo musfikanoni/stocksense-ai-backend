@@ -13,6 +13,7 @@ import billingRoutes from "./app/routes/billing.js";
 import dashboardRoutes from "./app/routes/dashboard.js";
 import notificationRoutes from "./app/routes/notifications.js";
 import { plansRouter, policyRouter } from "./app/routes/plans.js";
+import reviewRoutes from "./app/routes/reviews.js";
 import stockRoutes from "./app/routes/stocks.js";
 import watchlistRoutes from "./app/routes/watchlist.js";
 const app = express();
@@ -75,6 +76,7 @@ apiRouter.use("/policy", policyRouter);
 apiRouter.use("/billing", billingRoutes);
 apiRouter.use("/dashboard", dashboardRoutes);
 apiRouter.use("/notifications", notificationRoutes);
+apiRouter.use("/reviews", reviewRoutes);
 apiRouter.use("/admin", adminRoutes);
 apiPrefixes.forEach((prefix) => {
     app.use(prefix, apiRouter);

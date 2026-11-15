@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { me, requireAuth } from "../middleware/auth.js";
 import { Review } from "../models/Review.js";
+import { fullName } from "../models/User.js";
 import { AppError } from "../utils/AppError.js";
 import { ah } from "../utils/asyncHandler.js";
 
@@ -37,8 +38,7 @@ r.post("/", requireAuth, ah(async (req, res) => {
 
   const cleanRole = typeof role === "string" && role.trim() ? role.trim().slice(0, 50) : "Trader";
   const cleanComment = comment.trim().slice(0, 600);
-  const userName =
-    user.name || (user.firstName ? `${user.firstName} ${user.lastName || ""}`.trim() : "Trader");
+  const userName = fullName(user) || "Trader";
 
   const review = await Review.findOneAndUpdate(
     { user: user._id },
