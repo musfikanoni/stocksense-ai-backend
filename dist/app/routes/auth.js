@@ -83,19 +83,10 @@ r.post("/forgot-password", ah(async (req, res) => {
         emailError = "Email provider is not configured.";
         console.warn("A reset code was made but email is not set up (see README).");
     }
-    const out = {
-        message: emailSent
-            ? "Verification code sent to your email!"
-            : "Verification code generated.",
-    };
-    if (env.showDevOtp || !emailSent) {
-        out.devOtp = code;
-        console.log(`[dev] reset code for ${mail}: ${code}`);
+    if (!emailSent) {
+        throw new AppError(500, `Failed to send email: ${emailError || "Unable to deliver verification code."}`);
     }
-    if (!emailSent && !env.showDevOtp && !out.devOtp) {
-        throw new AppError(500, `Failed to send email: ${emailError}`);
-    }
-    res.json(out);
+    res.json({ message: "Verification code sent to your email!" });
 }));
 r.post("/verify-otp", ah(async (req, res) => {
     const mail = email(req.body?.email);

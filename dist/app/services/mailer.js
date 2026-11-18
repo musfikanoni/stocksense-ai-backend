@@ -103,14 +103,18 @@ export async function sendMail(m) {
                     connectionTimeout: 10000,
                     socketTimeout: 15000,
                 });
-                const sender = `"StockSense Support" <${env.mail.smtpUser}>`;
+                const sender = `"StockSense" <${env.mail.smtpUser}>`;
                 await transport.sendMail({
                     from: sender,
-                    replyTo: sender,
                     to: m.to,
                     subject: m.subject,
                     text: m.text,
                     html: m.html,
+                    headers: {
+                        "X-Priority": "3",
+                        "X-MSMail-Priority": "Normal",
+                        Importance: "Normal",
+                    },
                 });
                 return;
             }
@@ -150,14 +154,18 @@ export async function sendMail(m) {
             connectionTimeout: 10000,
             socketTimeout: 15000,
         });
-        const sender = `"StockSense Support" <${env.mail.smtpUser}>`;
+        const sender = `"StockSense" <${env.mail.smtpUser}>`;
         await transport.sendMail({
             from: sender,
-            replyTo: sender,
             to: m.to,
             subject: m.subject,
             text: m.text,
             html: m.html,
+            headers: {
+                "X-Priority": "3",
+                "X-MSMail-Priority": "Normal",
+                Importance: "Normal",
+            },
         });
     }
 }

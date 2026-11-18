@@ -7,72 +7,46 @@ const esc = (s) => String(s || "").replace(/[&<>"']/g, (c) => ({
     "'": "&#39;",
 }[c]));
 /**
- * Clean, modern light email shell.
- * Specifically crafted without overflow styles to prevent scrollbars in Gmail/Outlook.
+ * Clean, modern light email shell optimized for primary inbox deliverability.
+ * Avoids zero-pixel divs, hidden text, and spam trigger heuristics.
  */
-const brandedShell = (title, inner, previewText = "") => `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+const brandedShell = (title, inner, _previewText = "") => `<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${esc(title)}</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; color: #18181b;">
-  <!-- Preview text -->
-  <div style="display: none; max-height: 0px; overflow: hidden; mso-hide: all; font-size: 1px; line-height: 1px; color: #fff; opacity: 0;">
-    ${esc(previewText || title)}
-    &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
-  </div>
-
-  <!-- Background Wrapper Table -->
-  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f3f4f6; margin: 0; padding: 32px 12px;">
+<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b;">
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc; margin: 0; padding: 32px 16px;">
     <tr>
       <td align="center">
-        <!-- Main Email Container Card -->
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 580px; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);">
-          
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 520px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);">
           <!-- Header -->
           <tr>
-            <td style="padding: 24px 30px; border-bottom: 1px solid #f1f5f9; background-color: #ffffff; border-top-left-radius: 12px; border-top-right-radius: 12px;">
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                  <td>
-                    <span style="font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: #0f172a;">
-                      Stock<span style="color: #f59e0b;">Sense</span>
-                    </span>
-                  </td>
-                  <td align="right">
-                    <span style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a;">
-                      SUPPORT
-                    </span>
-                  </td>
-                </tr>
-              </table>
+            <td style="padding: 24px 28px; border-bottom: 1px solid #f1f5f9;">
+              <span style="font-size: 20px; font-weight: 700; color: #0f172a; letter-spacing: -0.5px;">
+                Stock<span style="color: #d97706;">Sense</span> AI
+              </span>
             </td>
           </tr>
-
           <!-- Main Content -->
           <tr>
-            <td style="padding: 30px 30px 24px 30px; color: #334155; font-size: 15px; line-height: 1.6;">
+            <td style="padding: 28px 28px 24px 28px; color: #334155; font-size: 15px; line-height: 1.6;">
               ${inner}
             </td>
           </tr>
-
           <!-- Footer -->
           <tr>
-            <td style="padding: 22px 30px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; font-size: 12px; line-height: 1.5; color: #64748b; text-align: center; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
-              <p style="margin: 0 0 6px 0; font-size: 12px; color: #475569;">
-                <b>StockSense AI</b> &bull; Smart Market Intelligence &bull; <a href="${esc(env.clientUrl)}" style="color: #d97706; text-decoration: none; font-weight: 600;">Visit Website</a>
+            <td style="padding: 20px 28px; background-color: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 12px; line-height: 1.5; color: #94a3b8; text-align: center; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+              <p style="margin: 0 0 6px 0; color: #64748b;">
+                StockSense AI &bull; Smart Market Intelligence
               </p>
-              <p style="margin: 0 0 6px 0; font-size: 11px; color: #94a3b8;">
-                You received this email because a message was submitted on StockSense. If you didn't make this request, you can safely ignore it.
-              </p>
-              <p style="margin: 0; font-size: 11px; color: #94a3b8;">
-                StockSense is an educational tool. Nothing herein constitutes financial or investment advice.
+              <p style="margin: 0;">
+                This is an automated security message. Please do not reply directly to this email.
               </p>
             </td>
           </tr>
-
         </table>
       </td>
     </tr>
@@ -80,21 +54,21 @@ const brandedShell = (title, inner, previewText = "") => `<!DOCTYPE html PUBLIC 
 </body>
 </html>`;
 export const resetCodeEmail = (code) => ({
-    subject: `Your StockSense Verification Code is ${code}`,
-    text: `Your StockSense password reset code is: ${code}\n\nThis code will expire in 10 minutes.\nIf you did not request a password reset, please disregard this email.`,
-    html: brandedShell("Password Reset Code", `
-    <h2 style="margin: 0 0 14px 0; font-size: 20px; color: #0f172a; font-weight: 700;">Password Reset Request</h2>
-    <p style="margin: 0 0 20px 0; color: #475569; font-size: 15px;">We received a request to reset your password. Use the verification code below to complete the process:</p>
+    subject: "StockSense Verification Code",
+    text: `Hello,\n\nWe received a request to reset your password for your StockSense AI account.\n\nYour 6-digit verification code is: ${code}\n\nThis code will expire in 10 minutes.\n\nIf you did not request a password reset, please ignore this email and your password will remain unchanged.\n\nBest regards,\nStockSense AI Team`,
+    html: brandedShell("StockSense Verification Code", `
+    <h2 style="margin: 0 0 12px 0; font-size: 18px; color: #0f172a; font-weight: 600;">Password Reset Verification</h2>
+    <p style="margin: 0 0 20px 0; color: #475569; font-size: 15px; line-height: 1.5;">We received a request to reset your StockSense account password. Use the verification code below to proceed:</p>
     
     <div style="text-align: center; margin: 24px 0;">
-      <div style="display: inline-block; padding: 12px 32px; background-color: #fef3c7; border: 2px dashed #f59e0b; border-radius: 8px; font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #92400e; font-family: monospace;">
+      <div style="display: inline-block; padding: 14px 28px; background-color: #fef9c3; border: 1px solid #fde047; border-radius: 8px; font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #854d0e; font-family: Consolas, 'Courier New', monospace;">
         ${esc(code)}
       </div>
-      <p style="margin: 8px 0 0 0; font-size: 12px; color: #64748b;">This code expires in 10 minutes.</p>
+      <p style="margin: 10px 0 0 0; font-size: 13px; color: #64748b;">This code expires in 10 minutes.</p>
     </div>
 
-    <p style="margin: 0; font-size: 13px; color: #64748b;">If you did not make this request, your account is secure and you may safely ignore this message.</p>
-    `, `Your password reset code is ${code}`),
+    <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.5;">If you didn't request a password reset, you can safely ignore this email. Your account remains secure.</p>
+    `),
 });
 export const alertEmail = (title, body) => ({
     subject: `[StockSense Alert] ${title}`,
