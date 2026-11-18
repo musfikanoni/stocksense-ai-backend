@@ -66,10 +66,35 @@ export async function createCheckout(user, plan, cycle) {
 }
 export async function createPortal(user) {
     const s = requireStripe();
-    if (!user.stripeCustomerId)
-        throw new AppError(400, "You have no billing account yet. Subscribe to a plan first.");
-    const session = await s.billingPortal.sessions.create({ customer: user.stripeCustomerId, return_url: `${env.clientUrl}/subscription` });
-    return session.url;
+    if (!user.stripeCustomerId) {
+        try {
+            const customer = await s.customers.create({
+                email: user.email,
+                name: fullName(user),
+                metadata: { userId: String(user.id) },
+            });
+            user.stripeCustomerId = customer.id;
+            await user.save();
+        }
+        catch {
+            throw new AppError(400, "Could not create billing customer profile.");
+        }
+    }
+    try {
+        const session = await s.billingPortal.sessions.create({
+            customer: user.stripeCustomerId,
+            return_url: `${env.clientUrl}/settings`,
+        });
+        return session.url;
+    }
+    catch (err) {
+        const stripeErr = err;
+        if (stripeErr.message?.includes("No customer portal configuration exists") ||
+            stripeErr.code === "resource_missing") {
+            throw new AppError(503, "Stripe Customer Portal is not activated yet in your Stripe dashboard. Please enable it in Stripe under Settings > Customer Portal.");
+        }
+        throw new AppError(500, stripeErr.message || "Failed to launch billing portal.");
+    }
 }
 const customerId = (c) => (typeof c === "string" ? c : c?.id);
 async function planById(id) {

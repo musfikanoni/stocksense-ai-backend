@@ -112,7 +112,7 @@ r.post("/reset-password", ah(async (req, res) => {
 }));
 r.get("/me", requireAuth, ah(async (req, res) => {
     const user = me(req);
-    if (user.stripeCustomerId && user.planName === "Free") {
+    if (user.stripeCustomerId) {
         await syncUserSubscription(user);
     }
     res.json({ user });

@@ -14,10 +14,7 @@ r.use(requireAuth);
 r.get("/", ah(async (req, res) => {
   const user = me(req);
   if (user.stripeCustomerId) {
-    const count = await Invoice.countDocuments({ user: user._id });
-    if (count === 0 || user.planName === "Free") {
-      await syncUserSubscription(user);
-    }
+    await syncUserSubscription(user);
   }
   const invoices = await Invoice.find({ user: user._id }).sort({ date: -1 });
   res.json({

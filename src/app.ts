@@ -39,8 +39,14 @@ app.use(async (_req, _res, next) => {
 });
 
 // Stripe needs the untouched request body to check its signature, so this route comes before express.json()
-apiPrefixes.forEach((prefix) => {
-  app.post(`${prefix}/billing/webhook`, express.raw({ type: "application/json", limit: "1mb" }), stripeWebhook);
+const webhookPaths = [
+  "/webhook",
+  "/api/webhook",
+  ...apiPrefixes.map((prefix) => `${prefix}/billing/webhook`),
+  ...apiPrefixes.map((prefix) => `${prefix}/webhook`),
+];
+webhookPaths.forEach((path) => {
+  app.post(path, express.raw({ type: "application/json", limit: "1mb" }), stripeWebhook);
 });
 app.use(express.json({ limit: "20kb" }));
 
