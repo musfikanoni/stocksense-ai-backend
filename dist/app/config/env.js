@@ -41,7 +41,7 @@
 //     apiKey: process.env.CLOUDINARY_API_KEY || "",
 //     apiSecret: process.env.CLOUDINARY_API_SECRET || "",
 //   },
-//   showDevOtp: process.env.SHOW_DEV_OTP === "true" && !isProd,
+//   showDevOtp: process.env.SHOW_DEV_OTP === "true",
 // };
 // export const FREE_LIMITS = { watchlist: 5, alerts: 3 };
 import { existsSync } from "node:fs";
@@ -102,7 +102,7 @@ export const env = {
         apiKey: process.env.CLOUDINARY_API_KEY || "",
         apiSecret: process.env.CLOUDINARY_API_SECRET || "",
     },
-    showDevOtp: process.env.SHOW_DEV_OTP === "true" && !isProd,
+    showDevOtp: process.env.SHOW_DEV_OTP === "true",
 };
 export const FREE_LIMITS = {
     watchlist: 5,

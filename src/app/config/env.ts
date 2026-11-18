@@ -47,7 +47,7 @@
 //     apiSecret: process.env.CLOUDINARY_API_SECRET || "",
 //   },
 
-//   showDevOtp: process.env.SHOW_DEV_OTP === "true" && !isProd,
+//   showDevOtp: process.env.SHOW_DEV_OTP === "true",
 // };
 
 
@@ -145,7 +145,7 @@ export const env = {
     apiSecret: process.env.CLOUDINARY_API_SECRET || "",
   },
 
-  showDevOtp: process.env.SHOW_DEV_OTP === "true" && !isProd,
+  showDevOtp: process.env.SHOW_DEV_OTP === "true",
 };
 
 export const FREE_LIMITS = {

@@ -53,22 +53,47 @@ r.post("/google", ah(async (req, res) => {
 }));
 r.post("/forgot-password", ah(async (req, res) => {
     const mail = email(req.body?.email);
-    // Same answer either way, so nobody can probe which emails exist
-    const out = { message: "If that email has an account, we sent a 6-digit code." };
     const user = await User.findOne({ email: mail });
-    if (user && !user.blocked) {
-        const code = String(crypto.randomInt(100000, 1000000));
-        user.resetOtp = { hash: codeHash(code, mail), expires: new Date(Date.now() + 10 * 60 * 1000), attempts: 0 };
-        await user.save();
-        // Sent without waiting, so the answer takes the same time whether or not the email has an account
-        if (mailProvider())
-            void sendMail({ to: mail, ...resetCodeEmail(code) }).catch((e) => console.error(`Could not send the reset code email: ${e.message}`));
-        else
-            console.warn("A reset code was made but email is not set up (see README), so nobody can receive it.");
-        if (env.showDevOtp) {
-            out.devOtp = code;
-            console.log(`[dev] reset code for ${mail}: ${code}`);
+    if (!user) {
+        throw new AppError(404, "No account found with this email address. Please check the spelling or sign up.");
+    }
+    if (user.blocked) {
+        throw new AppError(403, "This account is blocked. Contact support.");
+    }
+    const code = String(crypto.randomInt(100000, 1000000));
+    user.resetOtp = {
+        hash: codeHash(code, mail),
+        expires: new Date(Date.now() + 10 * 60 * 1000),
+        attempts: 0,
+    };
+    await user.save();
+    let emailSent = false;
+    let emailError = "";
+    if (mailProvider()) {
+        try {
+            await sendMail({ to: mail, ...resetCodeEmail(code) });
+            emailSent = true;
         }
+        catch (e) {
+            emailError = e.message;
+            console.error(`Could not send the reset code email: ${emailError}`);
+        }
+    }
+    else {
+        emailError = "Email provider is not configured.";
+        console.warn("A reset code was made but email is not set up (see README).");
+    }
+    const out = {
+        message: emailSent
+            ? "Verification code sent to your email!"
+            : "Verification code generated.",
+    };
+    if (env.showDevOtp || !emailSent) {
+        out.devOtp = code;
+        console.log(`[dev] reset code for ${mail}: ${code}`);
+    }
+    if (!emailSent && !env.showDevOtp && !out.devOtp) {
+        throw new AppError(500, `Failed to send email: ${emailError}`);
     }
     res.json(out);
 }));

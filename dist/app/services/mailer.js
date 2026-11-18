@@ -62,7 +62,7 @@ async function sendWithAppsScript(m) {
             name: "StockSense Support",
             replyTo: env.mail.from || env.mail.smtpUser || "musfika1425@gmail.com",
         }),
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(5000),
     });
     const responseText = await response.text();
     if (!response.ok) {
