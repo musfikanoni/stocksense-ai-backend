@@ -7,7 +7,6 @@
 [![Stripe](https://img.shields.io/badge/Stripe-SDK%20v17-635bff?logo=stripe&logoColor=white)](https://stripe.com/)
 [![Google Cloud](https://img.shields.io/badge/Google%20OAuth-2.0-red?logo=google&logoColor=white)](https://cloud.google.com/)
 [![Gemini AI](https://img.shields.io/badge/Gemini%20API-2.5--Flash-orange?logo=google-gemini&logoColor=white)](https://ai.google.dev/)
-[![License](https://img.shields.io/badge/License-MIT-purple)](#license)
 
 > **Enterprise-grade, high-throughput RESTful backend powering real-time quantitative stock analysis, multi-channel threshold alerts, tiered subscription billing, and AI-driven market intelligence.**
 
@@ -363,7 +362,3 @@ Building StockSense API allowed me to address real-world software engineering co
 2. **Constructing financial simulations** that respect statistical bounds without relying on expensive live market-data subscriptions during prototyping.
 3. **Balancing strict security controls** (timing-attack protections, token versioning, rate limiting) with high developer ergonomics.
 
----
-
-## 📄 License
-Distributed under the **MIT License**. See `LICENSE` for more information.

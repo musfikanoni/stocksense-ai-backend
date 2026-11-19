@@ -19,7 +19,7 @@ import stockRoutes from "./app/routes/stocks.js";
 import watchlistRoutes from "./app/routes/watchlist.js";
 
 const app = express();
-app.set("trust proxy", 1);                 // we run behind a proxy on Render/Railway, so rate limits see the real IP
+app.set("trust proxy", 1);                 
 const helmetMiddleware: any = (helmet as any).default || helmet;
 app.use(helmetMiddleware());
 app.use(cors({
@@ -28,7 +28,7 @@ app.use(cors({
 
 const apiPrefixes = ["/api", "/v1/api", "/api/v1"];
 
-// Ensure MongoDB is connected (crucial for serverless environments like Vercel)
+
 app.use(async (_req, _res, next) => {
   try {
     await connectDb();
@@ -67,14 +67,7 @@ apiPrefixes.forEach((prefix) => {
 
 const apiStatus = (_req: express.Request, res: express.Response) => {
   res.json({
-    name: "StockSense API",
-    status: "healthy",
-    endpoints: {
-      health: "/api/health",
-      stocks: "/api/stocks",
-      plans: "/api/plans",
-      auth: "/api/auth",
-    },
+    message: "Welcome to StockSense AI System Backend",
   });
 };
 
