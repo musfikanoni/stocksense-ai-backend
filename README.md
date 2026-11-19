@@ -362,8 +362,3 @@ Building StockSense API allowed me to address real-world software engineering co
 1. **Designing idempotent billing pipelines** that withstand dropped network connections.
 2. **Constructing financial simulations** that respect statistical bounds without relying on expensive live market-data subscriptions during prototyping.
 3. **Balancing strict security controls** (timing-attack protections, token versioning, rate limiting) with high developer ergonomics.
-
----
-
-## 📄 License
-Distributed under the **MIT License**. See `LICENSE` for more information.
