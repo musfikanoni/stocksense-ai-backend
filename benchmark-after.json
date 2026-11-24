@@ -1,0 +1,8 @@
+{
+  "runs": 30,
+  "average": 0.1,
+  "median": 0.05,
+  "p95": 0.32,
+  "minimum": 0.05,
+  "maximum": 0.59
+}
